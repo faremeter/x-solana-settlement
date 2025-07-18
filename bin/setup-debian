@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+export DEBIAN_FRONTEND=noninteractive
+
+# Install anchor and the rest of the Solana tooling
+curl --proto '=https' --tlsv1.2 -sSfL https://solana-install.solana.workers.dev | bash
+
+# Get things up to be able to run nginx with lua
+sudo apt-get -qy install nginx-extras luarocks
+
+for i in lua-resty-http lua-resty-string ; do
+    sudo luarocks install $i
+done
