@@ -1,12 +1,19 @@
 all: lint build test
 
-build:
+build: $(wildcard packages/*)
 
 lint:
+	pnpm prettier -c .
+	pnpm eslint .
 
 test:
 
 format:
+	pnpm prettier -w .
 
-.PHONY: all lint test format
+packages/%: FORCE
+	cd $@ && rm -rf dist && tsc
+
+
+.PHONY: all lint test
 FORCE:
