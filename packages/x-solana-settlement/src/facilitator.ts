@@ -26,7 +26,7 @@ function errorResponse(msg: string): x402SettleResponse {
   };
 }
 
-export const x402Scheme = "@faremeter/x402-solana";
+export const x402Scheme = "@faremeter/x-solana-settlement";
 
 export const createFacilitatorHandler = (
   network: string,

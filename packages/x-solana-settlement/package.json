@@ -1,5 +1,5 @@
 {
-  "name": "@faremeter/x402-solana",
+  "name": "@faremeter/x-solana-settlement",
   "version": "0.1.0",
   "license": "GPL-3.0-only",
   "type": "module",
