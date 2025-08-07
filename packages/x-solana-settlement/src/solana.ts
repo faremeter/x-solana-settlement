@@ -2,8 +2,8 @@ import {
   Keypair,
   PublicKey,
   SystemProgram,
+  TransactionInstruction,
   TransactionMessage,
-  type TransactionInstruction,
   type TransactionSignature,
   VersionedTransaction,
 } from "@solana/web3.js";
@@ -14,6 +14,7 @@ import { BorshCoder, Program } from "@coral-xyz/anchor";
 import { DummyProvider } from "./dummyprovider";
 import type { PaymentProgram } from "./idl_type";
 import { default as BN } from "bn.js";
+import * as ed from "@noble/ed25519";
 
 import paymentProgramInfo from "./payment_program.json";
 
@@ -26,6 +27,10 @@ import bs58 from "bs58";
 export const coder = new BorshCoder(idl as PaymentProgram);
 
 export const program = new Program(idl as PaymentProgram, new DummyProvider());
+
+const MEMO_PROGRAM_ID = new PublicKey(
+  "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+);
 
 export const processTransaction = async (
   connection: Connection,
@@ -99,6 +104,80 @@ export const isValidTransferTransaction = async (
   }
 
   return false;
+};
+
+export const isValidMemo = async (
+  connection: Connection,
+  signature: TransactionSignature,
+  expectedPublicKey: Uint8Array,
+  originalMessage: string,
+): Promise<boolean> => {
+  const transaction = await connection.getTransaction(signature, {
+    commitment: "confirmed",
+    maxSupportedTransactionVersion: 0,
+  });
+
+  if (!transaction || transaction.meta?.err) {
+    return false;
+  }
+
+  const message = transaction.transaction.message;
+
+  // Check top-level instructions for memo
+  const memoIndex = message.compiledInstructions.findIndex((instruction) => {
+    const programId = message.staticAccountKeys[instruction.programIdIndex];
+    if (programId === undefined) {
+      return false;
+    }
+    return programId.equals(MEMO_PROGRAM_ID);
+  });
+
+  let memoData: Uint8Array | null = null;
+
+  if (memoIndex !== -1) {
+    const memoInstruction = message.compiledInstructions[memoIndex];
+    if (memoInstruction?.data) {
+      memoData = memoInstruction.data;
+    }
+  }
+
+  // Check inner instructions (CPIs) if not found in top-level
+  if (!memoData && transaction.meta?.innerInstructions) {
+    for (const innerInstructionSet of transaction.meta.innerInstructions) {
+      for (const instruction of innerInstructionSet.instructions) {
+        const programId = message.staticAccountKeys[instruction.programIdIndex];
+        if (programId === undefined) {
+          continue;
+        }
+        if (programId.equals(MEMO_PROGRAM_ID) && instruction.data) {
+          // Inner instruction data is base58 encoded
+          memoData = bs58.decode(instruction.data);
+          break;
+        }
+      }
+      if (memoData) break;
+    }
+  }
+
+  if (!memoData) {
+    return false;
+  }
+
+  const hexString = Buffer.from(memoData).toString("utf8");
+  const signatureBytes = Buffer.from(hexString, "hex");
+
+  const messageBuffer = Buffer.from(originalMessage);
+  const isValid = await ed.verifyAsync(
+    signatureBytes,
+    messageBuffer,
+    expectedPublicKey,
+  );
+
+  if (!isValid) {
+    return false;
+  }
+
+  return true;
 };
 
 export const extractTransferData = async (
@@ -365,4 +444,14 @@ export const createSplPaymentInstruction = async (
     .instruction();
 
   return programInstruction;
+};
+
+export const createMemoInstruction = (
+  message: string,
+): TransactionInstruction => {
+  return new TransactionInstruction({
+    keys: [],
+    programId: MEMO_PROGRAM_ID,
+    data: Buffer.from(message, "utf8"),
+  });
 };
