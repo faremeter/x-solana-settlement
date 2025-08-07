@@ -15,7 +15,10 @@ import {
   extractTransferData,
   isValidTransferTransaction,
   processTransaction,
+  isValidMemo,
 } from "./solana";
+
+import * as ed from "@noble/ed25519";
 
 function errorResponse(msg: string): x402SettleResponse {
   return {
@@ -100,6 +103,19 @@ export const createFacilitatorHandler = (
     if (!transactionData.success) {
       console.log("couldn't extract transfer data");
       return errorResponse("could not extract transfer data");
+    }
+
+    const pubkey = await ed.getPublicKeyAsync(paymentPayload.sharedSecretKey);
+    const isValidMemoSignature = await isValidMemo(
+      connection,
+      signature,
+      pubkey,
+      transactionData.data.amount.toString(),
+    );
+
+    if (!isValidMemoSignature) {
+      console.log("could not veify memo signature");
+      return errorResponse("could not verify memo signature");
     }
 
     if (

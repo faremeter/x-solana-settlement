@@ -17,12 +17,15 @@ import {
 
 import { PaymentRequirementsExtra, createPaymentPayload } from "./types";
 import {
+  createMemoInstruction,
   createSolPaymentInstruction,
   createSplPaymentInstruction,
 } from "./solana";
+import * as ed from "@noble/ed25519";
 
 async function sendTransaction(
   wallet: Wallet,
+  sharedSecretKey: Uint8Array,
   instructions: TransactionInstruction[],
   recentBlockhash: string,
 ) {
@@ -48,9 +51,14 @@ async function sendTransaction(
 
   if (wallet.sendTransaction) {
     const hash = await wallet.sendTransaction(tx);
-    payload = createPaymentPayload(wallet.publicKey, undefined, hash);
+    payload = createPaymentPayload(
+      wallet.publicKey,
+      sharedSecretKey,
+      undefined,
+      hash,
+    );
   } else {
-    payload = createPaymentPayload(wallet.publicKey, tx);
+    payload = createPaymentPayload(wallet.publicKey, sharedSecretKey, tx);
   }
 
   return {
@@ -89,6 +97,13 @@ export function createPaymentHandler(wallet: Wallet, mint?: PublicKey) {
             admin: new PublicKey(extra.admin),
           };
 
+          const sharedSecretKey = ed.utils.randomPrivateKey();
+          const message = Buffer.from(paymentRequirements.amount.toString());
+          const signature = await ed.signAsync(message, sharedSecretKey);
+          const signatureHex = Buffer.from(signature).toString("hex");
+
+          const memoInstruction = createMemoInstruction(signatureHex);
+
           const instructions = [
             mint
               ? await createSplPaymentInstruction(
@@ -100,9 +115,11 @@ export function createPaymentHandler(wallet: Wallet, mint?: PublicKey) {
                   paymentRequirements,
                   wallet.publicKey,
                 ),
+            memoInstruction,
           ];
           return await sendTransaction(
             wallet,
+            sharedSecretKey,
             instructions,
             extra.recentBlockhash,
           );

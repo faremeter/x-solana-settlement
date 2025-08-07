@@ -7,13 +7,19 @@ import type { default as BN } from "bn.js";
 import { type } from "arktype";
 import bs58 from "bs58";
 
-const VersionedTransactionString = type("string").pipe.try((tx) => {
-  const decoded = bs58.decode(tx);
-  return VersionedTransaction.deserialize(decoded);
+const base58DecodeString = type("string").pipe.try((t) => {
+  return bs58.decode(t);
 });
+
+const VersionedTransactionString = type("string")
+  .pipe(base58DecodeString)
+  .pipe.try((tx) => {
+    return VersionedTransaction.deserialize(tx);
+  });
 
 export const PaymentPayload = type({
   payer: "string",
+  sharedSecretKey: base58DecodeString,
 }).and(
   type({
     type: "'transaction'",
@@ -28,6 +34,7 @@ export type PaymentPayload = typeof PaymentPayload.infer;
 
 export function createPaymentPayload(
   payer: PublicKey,
+  sharedSecretKey: Uint8Array,
   versionedTransaction?: VersionedTransaction,
   transactionSignature?: string,
 ) {
@@ -36,6 +43,7 @@ export function createPaymentPayload(
   }
 
   const payerB58 = payer.toBase58();
+  const sharedSecretKeyString = bs58.encode(sharedSecretKey);
 
   if (versionedTransaction) {
     const versionedTransactionB58 = bs58.encode(
@@ -44,12 +52,14 @@ export function createPaymentPayload(
 
     return {
       type: "transaction",
+      sharedSecretKey: sharedSecretKeyString,
       versionedTransaction: versionedTransactionB58,
       payer: payerB58,
     };
   } else {
     return {
       type: "signature",
+      sharedSecretKey: sharedSecretKeyString,
       transactionSignature,
       payer: payerB58,
     };
