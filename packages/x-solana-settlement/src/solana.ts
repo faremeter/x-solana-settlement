@@ -6,6 +6,7 @@ import {
   TransactionMessage,
   type TransactionSignature,
   VersionedTransaction,
+  type VersionedTransactionResponse,
 } from "@solana/web3.js";
 import { Connection } from "@solana/web3.js";
 import type { CreatePaymentArgs, PaymentTargetInfo } from "./types";
@@ -32,6 +33,22 @@ const MEMO_PROGRAM_ID = new PublicKey(
   "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
 );
 
+export const getTransaction = async (
+  connection: Connection,
+  signature: TransactionSignature,
+): Promise<VersionedTransactionResponse | null> => {
+  const transaction = await connection.getTransaction(signature, {
+    commitment: "confirmed",
+    maxSupportedTransactionVersion: 0,
+  });
+
+  if (!transaction || transaction.meta?.err) {
+    return null;
+  }
+
+  return transaction;
+};
+
 export const processTransaction = async (
   connection: Connection,
   transaction: VersionedTransaction,
@@ -51,18 +68,8 @@ export const processTransaction = async (
 };
 
 export const isValidTransferTransaction = async (
-  connection: Connection,
-  signature: TransactionSignature,
+  transaction: VersionedTransactionResponse,
 ): Promise<boolean> => {
-  const transaction = await connection.getTransaction(signature, {
-    commitment: "confirmed",
-    maxSupportedTransactionVersion: 0,
-  });
-
-  if (!transaction || transaction.meta?.err) {
-    return false;
-  }
-
   const transferIndex =
     transaction.transaction.message.compiledInstructions.findIndex(
       (instruction) => {
@@ -107,20 +114,10 @@ export const isValidTransferTransaction = async (
 };
 
 export const isValidMemo = async (
-  connection: Connection,
-  signature: TransactionSignature,
+  transaction: VersionedTransactionResponse,
   expectedPublicKey: Uint8Array,
   originalMessage: string,
 ): Promise<boolean> => {
-  const transaction = await connection.getTransaction(signature, {
-    commitment: "confirmed",
-    maxSupportedTransactionVersion: 0,
-  });
-
-  if (!transaction || transaction.meta?.err) {
-    return false;
-  }
-
   const message = transaction.transaction.message;
 
   // Check top-level instructions for memo
@@ -181,8 +178,7 @@ export const isValidMemo = async (
 };
 
 export const extractTransferData = async (
-  connection: Connection,
-  signature: TransactionSignature,
+  transaction: VersionedTransactionResponse,
 ): Promise<
   | {
       success: true;
@@ -194,18 +190,6 @@ export const extractTransferData = async (
       err: string;
     }
 > => {
-  const transaction = await connection.getTransaction(signature, {
-    commitment: "confirmed",
-    maxSupportedTransactionVersion: 0,
-  });
-
-  if (!transaction || transaction.meta?.err) {
-    return {
-      success: false,
-      err: "Transaction not successfully landed",
-    };
-  }
-
   const message = transaction.transaction.message;
 
   // Check top-level instructions

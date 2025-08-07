@@ -16,6 +16,7 @@ import {
   isValidTransferTransaction,
   processTransaction,
   isValidMemo,
+  getTransaction,
 } from "./solana";
 
 import * as ed from "@noble/ed25519";
@@ -93,13 +94,19 @@ export const createFacilitatorHandler = (
 
     console.log("Payment signature", signature);
 
-    const isValidTx = await isValidTransferTransaction(connection, signature);
+    const transaction = await getTransaction(connection, signature);
+    if (!transaction) {
+      console.log("could not retrieve transaction");
+      return errorResponse("could not retrieve transaction");
+    }
+
+    const isValidTx = await isValidTransferTransaction(transaction);
     if (!isValidTx) {
       console.log("invalid transaction");
       return errorResponse("invalid transaction");
     }
 
-    const transactionData = await extractTransferData(connection, signature);
+    const transactionData = await extractTransferData(transaction);
     if (!transactionData.success) {
       console.log("couldn't extract transfer data");
       return errorResponse("could not extract transfer data");
@@ -107,8 +114,7 @@ export const createFacilitatorHandler = (
 
     const pubkey = await ed.getPublicKeyAsync(paymentPayload.sharedSecretKey);
     const isValidMemoSignature = await isValidMemo(
-      connection,
-      signature,
+      transaction,
       pubkey,
       transactionData.data.amount.toString(),
     );
