@@ -16,7 +16,7 @@ import type { PaymentProgram } from "./idl_type";
 import { default as BN } from "bn.js";
 import * as ed from "@noble/ed25519";
 
-import paymentProgramInfo from "./payment_program.json";
+import paymentProgramInfo from "./payment_program.json" with { type: "json" };
 
 import {
   getAssociatedTokenAddressSync,
