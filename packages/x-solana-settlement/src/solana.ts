@@ -10,7 +10,6 @@ import {
 } from "@solana/web3.js";
 import { Connection } from "@solana/web3.js";
 import type { CreatePaymentArgs, PaymentTargetInfo } from "./types";
-import idl from "./payment_program.json";
 import { BorshCoder, Program } from "@coral-xyz/anchor";
 import { DummyProvider } from "./dummyprovider";
 import type { PaymentProgram } from "./idl_type";
@@ -25,9 +24,12 @@ import {
 } from "@solana/spl-token";
 import bs58 from "bs58";
 
-export const coder = new BorshCoder(idl as PaymentProgram);
+export const coder = new BorshCoder(paymentProgramInfo as PaymentProgram);
 
-export const program = new Program(idl as PaymentProgram, new DummyProvider());
+export const program = new Program(
+  paymentProgramInfo as PaymentProgram,
+  new DummyProvider(),
+);
 
 const MEMO_PROGRAM_ID = new PublicKey(
   "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
