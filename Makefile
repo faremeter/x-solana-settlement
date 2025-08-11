@@ -12,7 +12,7 @@ format:
 	pnpm prettier -w .
 
 packages/%: FORCE
-	cd $@ && rm -rf dist && pnpm tsc
+	cd $@ && rm -rf dist && pnpm tsc && pnpm tsc-esm-fix
 
 
 .PHONY: all lint test
