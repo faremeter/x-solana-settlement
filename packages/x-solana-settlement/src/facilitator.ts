@@ -55,7 +55,6 @@ export const createFacilitatorHandler = (
         return {
           ...x,
           asset: mint ? mint.toBase58() : "sol",
-          maxTimeoutSeconds: 5,
           extra: {
             admin: adminKeypair.publicKey.toString(),
             recentBlockhash,
