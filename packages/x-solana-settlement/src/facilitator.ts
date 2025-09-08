@@ -1,3 +1,4 @@
+import { logger } from "./logger";
 import { type } from "arktype";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import {
@@ -92,23 +93,23 @@ export const createFacilitatorHandler = (
       return errorResponse("invalid signature");
     }
 
-    console.log("Payment signature", signature);
+    logger.info(`Payment signature: ${signature}`);
 
     const transaction = await getTransaction(connection, signature);
     if (!transaction) {
-      console.log("could not retrieve transaction");
+      logger.info("could not retrieve transaction");
       return errorResponse("could not retrieve transaction");
     }
 
     const isValidTx = await isValidTransferTransaction(transaction);
     if (!isValidTx) {
-      console.log("invalid transaction");
+      logger.info("invalid transaction");
       return errorResponse("invalid transaction");
     }
 
     const transactionData = await extractTransferData(transaction);
     if (!transactionData.success) {
-      console.log("couldn't extract transfer data");
+      logger.info("couldn't extract transfer data");
       return errorResponse("could not extract transfer data");
     }
 
@@ -120,7 +121,7 @@ export const createFacilitatorHandler = (
     );
 
     if (!isValidMemoSignature) {
-      console.log("could not veify memo signature");
+      logger.info("could not veify memo signature");
       return errorResponse("could not verify memo signature");
     }
 
@@ -128,7 +129,7 @@ export const createFacilitatorHandler = (
       Number(transactionData.data.amount) !==
       Number(requirements.maxAmountRequired)
     ) {
-      console.log("payments didn't match amount");
+      logger.info("payments didn't match amount");
       return errorResponse("payments didn't match amount");
     }
 
@@ -139,14 +140,14 @@ export const createFacilitatorHandler = (
       transactionData.data.nonce,
     );
     if (!settleTx) {
-      console.log("couldn't create settle tx");
+      logger.info("couldn't create settle tx");
       return errorResponse("couldn't create settlement tx");
     }
 
     const settleSig = await processTransaction(connection, settleTx);
 
     if (settleSig == null) {
-      console.log("couldn't process settlement");
+      logger.info("couldn't process settlement");
       return errorResponse("couldn't process settlement");
     }
 
