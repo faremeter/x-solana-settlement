@@ -1,3 +1,4 @@
+import { logger } from "./logger";
 import {
   Keypair,
   PublicKey,
@@ -64,7 +65,7 @@ export const processTransaction = async (
 
     return value.err ? null : signature;
   } catch (err) {
-    console.log(err);
+    logger.error(JSON.stringify(err));
     return null;
   }
 };
@@ -343,7 +344,7 @@ export const createSettleTransaction = async (
     return null;
   }
 
-  console.log("Creating settle tx");
+  logger.info("Creating settle tx");
 
   const settleNonce = crypto.getRandomValues(new Uint8Array(32));
 
