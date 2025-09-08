@@ -46,3 +46,5 @@ catalog:
   chai: ^4.3.4
   mocha: ^9.0.3
   ts-mocha: ^10.0.0
+
+catalogMode: prefer
