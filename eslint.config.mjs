@@ -11,6 +11,7 @@ export default tseslint.config(
   globalIgnores(["**/idl_type.ts", "**/dist/**"]),
   {
     rules: {
+      "no-console": "error",
       "@typescript-eslint/consistent-type-definitions": 0,
     },
   },
