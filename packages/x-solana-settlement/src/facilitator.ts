@@ -1,12 +1,12 @@
 import { logger } from "./logger";
 import { type } from "arktype";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import type { FacilitatorHandler } from "@faremeter/types/facilitator";
 import {
-  type FacilitatorHandler,
   x402PaymentRequirements,
   x402PaymentPayload,
   x402SettleResponse,
-} from "@faremeter/types";
+} from "@faremeter/types/x402";
 import { PaymentPayload } from "./types";
 
 import { isValidationError } from "@faremeter/types";
