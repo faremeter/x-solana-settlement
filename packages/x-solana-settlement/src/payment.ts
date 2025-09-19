@@ -7,13 +7,9 @@ import {
   TransactionInstruction,
   TransactionMessage,
 } from "@solana/web3.js";
-import {
-  type RequestContext,
-  type x402PaymentRequirements,
-  type PaymentExecer,
-  isValidationError,
-  throwValidationError,
-} from "@faremeter/types";
+import { isValidationError, throwValidationError } from "@faremeter/types";
+import type { x402PaymentRequirements } from "@faremeter/types/x402";
+import type { RequestContext, PaymentExecer } from "@faremeter/types/client";
 
 import { PaymentRequirementsExtra, createPaymentPayload } from "./types";
 import {
