@@ -7,6 +7,19 @@ import type { default as BN } from "bn.js";
 import { type } from "arktype";
 import bs58 from "bs58";
 
+export function isValidationError(
+  possibleErrors: unknown,
+): possibleErrors is type.errors {
+  return possibleErrors instanceof type.errors;
+}
+
+export function throwValidationError(
+  message: string,
+  errors: type.errors,
+): never {
+  throw new Error(message + ": " + errors.map((e) => e.message).join(","));
+}
+
 const base58DecodeString = type("string").pipe.try((t) => {
   return bs58.decode(t);
 });

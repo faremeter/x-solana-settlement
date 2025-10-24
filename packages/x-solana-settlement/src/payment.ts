@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import type { Wallet } from "./types";
+import { isValidationError, throwValidationError, type Wallet } from "./types";
 import { x402Scheme } from "./facilitator";
 import {
   PublicKey,
@@ -7,7 +7,6 @@ import {
   TransactionInstruction,
   TransactionMessage,
 } from "@solana/web3.js";
-import { isValidationError, throwValidationError } from "@faremeter/types";
 import type { x402PaymentRequirements } from "@faremeter/types/x402";
 import type { RequestContext, PaymentExecer } from "@faremeter/types/client";
 

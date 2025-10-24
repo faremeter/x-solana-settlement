@@ -7,9 +7,7 @@ import {
   x402PaymentPayload,
   x402SettleResponse,
 } from "@faremeter/types/x402";
-import { PaymentPayload } from "./types";
-
-import { isValidationError } from "@faremeter/types";
+import { isValidationError, PaymentPayload } from "./types";
 
 import {
   createSettleTransaction,
