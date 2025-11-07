@@ -389,11 +389,39 @@ export const createSettleTransaction = async (
   return tx;
 };
 
+export interface GetAssociatedTokenAddressSyncOptions {
+  allowOwnerOffCurve?: boolean;
+  programId?: PublicKey;
+  associatedTokenProgramId?: PublicKey;
+}
+
+function generateGetAssociatedTokenAddressSyncRest(
+  tokenConfig: GetAssociatedTokenAddressSyncOptions,
+) {
+  const { allowOwnerOffCurve, programId, associatedTokenProgramId } =
+    tokenConfig;
+
+  // NOTE: These map to the trailing default args of
+  // getAssociatedTokenAddressSync, so order matters. If things are
+  // refactored, they should be updated to match the reality of the
+  // implementation.
+
+  return [allowOwnerOffCurve, programId, associatedTokenProgramId] as const;
+}
+
+export interface CreateSplPaymentInstructionOptions {
+  token?: GetAssociatedTokenAddressSyncOptions;
+}
+
 export const createSplPaymentInstruction = async (
   target: PaymentTargetInfo,
   mint: PublicKey,
   payer: PublicKey,
+  options?: CreateSplPaymentInstructionOptions,
 ): Promise<TransactionInstruction> => {
+  const getAssociatedTokenAddressSyncRest =
+    generateGetAssociatedTokenAddressSyncRest(options?.token ?? {});
+
   const nonce = crypto.getRandomValues(new Uint8Array(32));
 
   const [paymentAccount] = PublicKey.findProgramAddressSync(
@@ -401,10 +429,15 @@ export const createSplPaymentInstruction = async (
     program.programId,
   );
 
-  const payerTokenAccount = getAssociatedTokenAddressSync(mint, payer);
+  const payerTokenAccount = getAssociatedTokenAddressSync(
+    mint,
+    payer,
+    ...getAssociatedTokenAddressSyncRest,
+  );
   const receiverTokenAccount = getAssociatedTokenAddressSync(
     mint,
     target.receiver,
+    ...getAssociatedTokenAddressSyncRest,
   );
 
   const createPaymentSpl = program.methods.createPaymentSpl;

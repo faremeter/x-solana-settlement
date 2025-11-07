@@ -15,6 +15,7 @@ import {
   createMemoInstruction,
   createSolPaymentInstruction,
   createSplPaymentInstruction,
+  type CreateSplPaymentInstructionOptions,
 } from "./solana";
 import * as ed from "@noble/ed25519";
 
@@ -61,7 +62,13 @@ async function sendTransaction(
   };
 }
 
-export function createPaymentHandler(wallet: Wallet, mint?: PublicKey) {
+export type CreatePaymentHandlerOptions = CreateSplPaymentInstructionOptions;
+
+export function createPaymentHandler(
+  wallet: Wallet,
+  mint?: PublicKey,
+  options?: CreatePaymentHandlerOptions,
+) {
   const matcher = type({
     scheme: `'${x402Scheme}'`,
     network: `'${wallet.network}'`,
@@ -105,6 +112,7 @@ export function createPaymentHandler(wallet: Wallet, mint?: PublicKey) {
                   paymentRequirements,
                   mint,
                   wallet.publicKey,
+                  options,
                 )
               : await createSolPaymentInstruction(
                   paymentRequirements,
