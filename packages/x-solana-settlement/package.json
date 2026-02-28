@@ -11,11 +11,6 @@
       "import": "./dist/src/index.js",
       "types": "./dist/src/index.d.ts"
     },
-    "./header": {
-      "require": "./dist/src/header.js",
-      "import": "./dist/src/header.js",
-      "types": "./dist/src/header.d.ts"
-    },
     "./facilitator": {
       "require": "./dist/src/facilitator.js",
       "import": "./dist/src/facilitator.js",
