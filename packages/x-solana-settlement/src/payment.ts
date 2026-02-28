@@ -7,7 +7,7 @@ import {
   TransactionInstruction,
   TransactionMessage,
 } from "@solana/web3.js";
-import type { x402PaymentRequirements } from "@faremeter/types/x402";
+import type { x402PaymentRequirements } from "@faremeter/types/x402v2";
 import type { RequestContext, PaymentExecer } from "@faremeter/types/client";
 
 import { PaymentRequirementsExtra, createPaymentPayload } from "./types";
@@ -94,7 +94,7 @@ export function createPaymentHandler(
         const exec = async () => {
           const paymentRequirements = {
             ...extra,
-            amount: Number(requirements.maxAmountRequired),
+            amount: Number(requirements.amount),
             receiver: new PublicKey(requirements.payTo),
             admin: new PublicKey(extra.admin),
           };

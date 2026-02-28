@@ -13,8 +13,8 @@ catalogs:
       specifier: 9.34.0
       version: 9.34.0
     '@faremeter/types':
-      specifier: 0.9.0
-      version: 0.9.0
+      specifier: 0.17.0
+      version: 0.17.0
     '@logtape/logtape':
       specifier: 1.0.4
       version: 1.0.4
@@ -106,7 +106,7 @@ importers:
         version: 0.31.1(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.9.2)(utf-8-validate@5.0.10)
       '@faremeter/types':
         specifier: 'catalog:'
-        version: 0.9.0
+        version: 0.17.0
       '@logtape/logtape':
         specifier: 'catalog:'
         version: 1.0.4
@@ -273,8 +273,8 @@ packages:
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@faremeter/types@0.9.0':
-    resolution: {integrity: sha512-/KbH4ILmTDzmIvmleGdy2nartQwD5WNFtYtBivKJnKsbegPzqZvCmBp61pFRzHnLxVp53FeROsFrW6HwBgh9vg==}
+  '@faremeter/types@0.17.0':
+    resolution: {integrity: sha512-Xq/k9++atY3u4JCVOmjRX/E355+cfY3jE+uSRjtANxSZ5LvOmPiEGjRPaN6CDHkVSgZTD6aK367GUCH6IuItew==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2502,7 +2502,7 @@ snapshots:
       '@eslint/core': 0.15.2
       levn: 0.4.1
 
-  '@faremeter/types@0.9.0':
+  '@faremeter/types@0.17.0':
     dependencies:
       arktype: 2.1.21
 
